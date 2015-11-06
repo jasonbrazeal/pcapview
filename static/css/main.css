@@ -50,6 +50,20 @@ body > .container {
   z-index: 999;
 }
 
+
+/* d3 */
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.dot {
+  stroke: #000;
+}
+
 /*
  * (C)Leanest CSS spinner ever
  * http://lea.verou.me/2013/11/cleanest-css-spinner-ever/
