@@ -68,12 +68,10 @@ def ajax():
             try:
                 int(tshark_lines[i + 1][0])
                 parsing_convos = True
-                k = 0
             except ValueError:
                 pass
             except IndexError:
                 break
-    print(conversations)
     response = []
     for c in conversations:
         c_packets = [p for p in packets if (p.src_ip in c.ip_pair) and (p.dst_ip in c.ip_pair)]
@@ -111,30 +109,6 @@ class Conversation():
     def __repr__(self):
         return '<Conversation {} <-> {}>'.format(self.ip_pair[0], self.ip_pair[1])
 
-
-
 if __name__ == '__main__':
     # app.run()
     app.run(host='0.0.0.0', debug=True)
-
-
-
-
-# sort by time using tshark, read in line by line
-
-
-# by source address
-
-#  tshark -T fields -e ip.src -r somefile.pcap
-# by dest address
-
-#  tshark -T fields -e ip.dst -r somefile.pcap
-# pipe either of those to | sort | uniq -c | sort -n | tail -50
-
-# you can get the top src/dst pairs with
-
-# tshark -T fields -e ip.src -e ip.dst -r somefile.pcap
-# To get a list of fields you can work with
-
-# tshark -G fields
-# (warning, wireshark has an overwhelming list of fields)
