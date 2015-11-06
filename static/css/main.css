@@ -61,7 +61,7 @@ body > .container {
 
 .progress {
   position: relative;
-  top: 2.5em;
+  top: 2em;
   left: calc(50% - 2.5em);
   display: inline-block;
   width: 5em;

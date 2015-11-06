@@ -4,14 +4,17 @@
 import os
 import subprocess
 import time
+from datetime import datetime
 import json
+from itertools import combinations
 
 from flask import Flask, render_template, request, abort
 from werkzeug import secure_filename
 
-PROTOCOLS = {'80': 'HTTP',
-             '443': 'HTTPS',
-             '53': 'DNS'}
+PROTOCOLS = {22: 'SSH',
+             53: 'DNS',
+             80: 'HTTP',
+             443: 'HTTPS'}
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = '.'
@@ -20,8 +23,20 @@ app.config['UPLOAD_FOLDER'] = '.'
 def index():
     return render_template('index.html')
 
+def get_conversation(p, conversations):
+    for c in conversations:
+        # if packet ip pair matches conversation ip pair
+        if (sorted([p.src_ip, p.dst_ip]) == sorted([c.src_ip, c.dst_ip])
+        # and packet protocol matches conversation protocol (either src or dst port)
+        and (PROTOCOLS.get(p.src_port, None) == c.proto or PROTOCOLS.get(p.dst_port, None) == c.proto)):
+        # but protocol is only significant for the first packet, the dst_port
+            return c
+    return None
+
 @app.route('/ajax', methods=['POST'])
 def ajax():
+
+    # handle file upload
     file = request.files['file']
     if file:
         # add timestamp to escaped file name
@@ -30,84 +45,71 @@ def ajax():
     else:
         abort(500)
 
-    tshark_output = subprocess.getoutput('tshark -z conv,ip -r {}'.format(pcap_file))
+    # process file with tshark command and parse output into a list of packets
+    tshark_output = subprocess.getoutput('tshark -o column.format:"AbsTime","%Yt","Source IP Address","%us","Source Port","%uS","Destination IP Address","%ud","Destination Port","%uD" -r {}'.format(pcap_file))
     tshark_lines = [l.strip() for l in tshark_output.split('\n')]
     packets = []
+    for line in tshark_lines:
+        p = line.split()
+        dt = datetime.strptime(p[0] + p[1].rstrip('0'), '%Y-%m-%d%H:%M:%S.%f')
+        del p[:2]
+        p.append(dt)
+        # if we get a packet line with incomplete data, ignore it
+        if len(p) != 5:
+            continue
+        packets.append(Packet(*p))
+
+    # get a list of conversations
     conversations = []
-    # the tshark expected output is lines of packet info, then some lines with headers and whitespace, then lines of conversations, then a footer
-    # this algorithm assumes the above structure
-    parsing_packets = True
-    parsing_convos = False
-    for i, line in enumerate(tshark_lines):
-        if parsing_packets:
-            # parse packet
-            p = line.split()
-            del p[4:6]
-            del p[2]
-            packets.append(Packet(*p))
-            # check next line to see if we've reached the end of the packets
-            try:
-                int(tshark_lines[i + 1][0])
-            except ValueError:
-                parsing_packets = False
-        elif parsing_convos:
-            # parse conversation
-            c = line.split()
-            del c[3:9]
-            del c[1]
-            conversations.append(Conversation((c[0], c[1]), c[2], c[3]))
-            # check next line to see if we've reached the end of the conversations
-            try:
-                int(tshark_lines[i + 1][0])
-            except ValueError:
-                parsing_convos = False
-                break
-        else:
-            # check next line to see if we've reached the beginning of the conversations
-            # IndexError indicates we're finished with all the lines
-            try:
-                int(tshark_lines[i + 1][0])
-                parsing_convos = True
-            except ValueError:
-                pass
-            except IndexError:
-                break
-    response = []
+    conv_ctr = 0
+
+    packets.sort(key=lambda x: x.time)
+    for p in packets:
+        # going through time
+        c = get_conversation(p, conversations)
+        if not c:
+            # try to recognize protocol from destination port first
+            # if unknown, then try to recognize it from source port
+            # (e.g. if the capture started in the middle of a conversation)
+            # if neither port is recognized, mark protocol as 'unknown'
+            protocol = PROTOCOLS.get(p.dst_port, PROTOCOLS.get(p.src_port, 'unknown'))
+            c = Conversation(conv_id=conv_ctr, src_ip=p.src_ip, dst_ip=p.dst_ip, proto=protocol)
+            conversations.append(c)
+            conv_ctr += 1
+        c.packets.append(p)
+
+    # prepare data for processing in d3
+    data_list = []
+    conv_dict = {}
     for c in conversations:
-        c_packets = [p for p in packets if (p.src_ip in c.ip_pair) and (p.dst_ip in c.ip_pair)]
-        c_packets.sort(key=lambda x: float(x.rel_start))
-        c.proto = PROTOCOLS.get(c_packets[0].dst_port, c_packets[0].dst_port)
-        c.src_ip = c_packets[0].src_ip
-        c.dst_ip = c_packets[0].dst_ip
-        data_point =  {'src_ip': c.src_ip,
-                       'dst_ip': c.dst_ip,
-                       'proto': c.proto,
-                       'duration': c.duration,
-                       'rel_start': c.rel_start}
-        response.append(data_point)
-    response.sort(key=lambda x: float(x['rel_start']))
-    return json.dumps(response)
+        print(str(c) + ' - ' + str(len(c.packets)))
+        conv_dict.update({c.conv_id: {'src_ip': c.src_ip,
+                                      'dst_ip': c.dst_ip,
+                                      'proto': c.proto}})
+        for p in c.packets:
+            data_list.append((str(p.time), c.conv_id))
+
+    return json.dumps([conv_dict, data_list])
 
 class Packet():
-    def __init__(self, rel_start, src_ip, dst_ip, src_port, dst_port):
-        self.rel_start = rel_start
+    def __init__(self, src_ip, src_port, dst_ip, dst_port, time):
         self.src_ip = src_ip
+        self.src_port = int(src_port)
         self.dst_ip = dst_ip
-        self.src_port = src_port
-        self.dst_port = dst_port
+        self.dst_port = int(dst_port)
+        self.time = time
     def __repr__(self):
-        return '<Packet {}:{} to {}:{}>'.format(self.src_ip, self.src_port, self.dst_ip, self.dst_port)
+        return '<Packet {}:{} -> {}:{}>'.format(self.src_ip, self.src_port, self.dst_ip, self.dst_port)
 
 class Conversation():
-    def __init__(self, ip_pair, rel_start, duration, proto='unknown', src_ip='unknown', dst_ip='unknown'):
-        self.ip_pair = ip_pair
-        self.rel_start = rel_start
-        self.duration = duration
-        self.proto = proto
+    def __init__(self, conv_id, src_ip, dst_ip, proto):
+        self.conv_id = str(conv_id)
         self.src_ip = src_ip
         self.dst_ip = dst_ip
+        self.proto = proto
+        self.packets = []
     def __repr__(self):
-        return '<Conversation {} <-> {}>'.format(self.ip_pair[0], self.ip_pair[1])
+        return '<Conversation {} -> {} ({})>'.format(self.src_ip, self.dst_ip, self.proto)
 
 if __name__ == '__main__':
     # app.run()

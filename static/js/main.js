@@ -45,14 +45,22 @@ $(document).ready(function() {
         contentType: false   // tell jQuery not to set contentType
       }).done(function(data) {
         console.log(data);
-        alert( "success" );
+        renderVisualization(data);
       }).fail(function(data) {
         console.log(data);
-        alert( "error" );
+        handleError(data);
       }).always(function(data) {
         $('.progress').remove();
       });
     }
   }); /* on drop */
+
+  function renderVisualization(data) {
+    console.log('rendering visualization...')
+  } /* renderVisualization */
+
+  function handleError(data) {
+    console.log('handling error...')
+  } /* handleError */
 
 }); /* document.ready */
