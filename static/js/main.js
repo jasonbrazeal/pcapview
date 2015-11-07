@@ -60,14 +60,13 @@ $(document).ready(function() {
     data = JSON.parse(raw_data)
     convDict = data[0];
     dataPoints = data[1];
-    console.log(dataPoints);
-    console.log(dataPoints.length);
 
     $('<div id="output"></div>').insertAfter('.container');
 
     var margin = {top: 50, right: 50, bottom: 80, left: 80};
     var width = 960 - margin.left - margin.right;
-    var height = 500 - margin.top - margin.bottom;
+    // height of visualization is based on number of conversations
+    var height = 100 + 20 * Object.getOwnPropertyNames(convDict).length - margin.top - margin.bottom;
 
     var x = d3.time.scale.utc().range([0, width]);
     var y = d3.scale.linear()
