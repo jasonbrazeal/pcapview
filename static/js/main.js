@@ -65,7 +65,7 @@ $(document).ready(function() {
 
     $('<div id="output"></div>').insertAfter('.container');
 
-    var margin = {top: 50, right: 20, bottom: 80, left: 20};
+    var margin = {top: 50, right: 50, bottom: 80, left: 80};
     var width = 960 - margin.left - margin.right;
     var height = 500 - margin.top - margin.bottom;
 
@@ -215,7 +215,7 @@ $(document).ready(function() {
           .data(protocols)
         .enter().append("g")
           .attr("class", "legend")
-          .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+          .attr("transform", function(d, i) { return "translate(0," + (i * -20) + ")"; });
 
       legend.append("rect")
           .attr("x", width - 18)
@@ -224,12 +224,13 @@ $(document).ready(function() {
           .style("fill", function(d) { return d3.rgb(protoColors[d]) });
 
       legend.append("text")
-          .attr("x", width - 24)
+          .attr("x", width + 3)
           .attr("y", 9)
           .attr("dy", ".35em")
-          .style("text-anchor", "end")
+          .style("text-anchor", "start")
           .text(function(d) { return d; });
 
+      legendGroup.attr("transform", "translate(" + (-1 * width - 30) + "," + (height - 10) + ")");
   } /* renderVisualization */
 
   function handleError(data) {
