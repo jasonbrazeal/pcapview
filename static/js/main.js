@@ -65,12 +65,20 @@ $(document).ready(function() {
     convDict = data[0];
     dataPoints = data[1];
 
+    // var tipPoint = d3.tip().attr('class', 'd3-tip').html(function(d) { return d; });
+    // tipPoint.direction('e');
+    // tipPoint.offset(function() {
+    //   return [10, 0]
+    // });
+    // var tipLine = d3.tip().attr('class', 'd3-tip').html(function(d) { return d; });
+    // tipLine.direction('e');
+
     $('<div id="output"></div>').insertAfter('.container');
 
     var margin = {top: 60, right: 50, bottom: 100, left: 80};
     var width = 960 - margin.left - margin.right;
     // height of visualization is based on number of conversations
-    var height = 125 + 15 * Object.getOwnPropertyNames(convDict).length - margin.top - margin.bottom;
+    var height = 145 + 15 * Object.getOwnPropertyNames(convDict).length - margin.top - margin.bottom;
 
     var x = d3.time.scale.utc().range([0, width]);
     var y = d3.scale.linear()
@@ -102,6 +110,8 @@ $(document).ready(function() {
     var svg = d3.select("#output").append("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
+        // .call(tipPoint)
+        // .call(tipLine)
       .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
@@ -172,10 +182,12 @@ $(document).ready(function() {
           .data(dataPoints)
         .enter().append("circle")
           .attr("class", "dot")
-          .attr("r", 2)
+          .attr("r", 3)
           .attr("cx", function(d) { return x(moment.utc(d[0]).toDate()); })
           .attr("cy", function(d) { return y(Number(d[1])); })
-          .style("fill", function(d) { console.log(d[1]); return d3.rgb(protoColors[convDict[d[1]].proto]); });
+          .style("fill", function(d) { return d3.rgb(protoColors[convDict[d[1]].proto]); })
+          // .on('mouseover', tipPoint.show)
+          // .on('mouseout', tipPoint.hide);
 
       lineGroup = svg.append("g")
           .attr("class", "lineGroup");
@@ -200,7 +212,10 @@ $(document).ready(function() {
           .datum(lineData)
           .attr("class", "line")
           .attr("d", line)
-          .style("stroke", function(d) { return d3.rgb(protoColors[convDict[convId].proto]); });
+          .style("stroke", function(d) { return d3.rgb(protoColors[convDict[convId].proto]); })
+          .style("stroke-width", "3px")
+          // .on('mouseover', tipLine.show)
+          // .on('mouseout', tipLine.hide);
         if (protocols.indexOf(convDict[convId].proto) < 0) {
           protocols.push(convDict[convId].proto)
         }
@@ -233,13 +248,13 @@ $(document).ready(function() {
       $("#output, #output *").on('drop', function(e) {
         e.stopPropagation();
         e.preventDefault();
-        return False;
+        return false;
       });
 
       $("#output, #output *").on('dragover', function(e) {
         e.stopPropagation();
         e.preventDefault();
-        return False;
+        return false;
       });
 
   } /* renderVisualization */
