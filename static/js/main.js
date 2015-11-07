@@ -63,10 +63,10 @@ $(document).ready(function() {
 
     $('<div id="output"></div>').insertAfter('.container');
 
-    var margin = {top: 50, right: 50, bottom: 80, left: 80};
+    var margin = {top: 60, right: 50, bottom: 80, left: 80};
     var width = 960 - margin.left - margin.right;
     // height of visualization is based on number of conversations
-    var height = 100 + 20 * Object.getOwnPropertyNames(convDict).length - margin.top - margin.bottom;
+    var height = 125 + 15 * Object.getOwnPropertyNames(convDict).length - margin.top - margin.bottom;
 
     var x = d3.time.scale.utc().range([0, width]);
     var y = d3.scale.linear()
@@ -106,7 +106,7 @@ $(document).ready(function() {
 
       svg.append("g")
           .attr("class", "x axis")
-          .attr("transform", "translate(0,-7)")
+          .attr("transform", "translate(0,-15)")
           .call(xAxis)
           .selectAll("text")
           .style("text-anchor", "end")
@@ -122,7 +122,7 @@ $(document).ready(function() {
 
       svg.append("g")
           .attr("class", "x axis")
-          .attr("transform", "translate(0," + (height + 10) + ")")
+          .attr("transform", "translate(0," + (height + 15) + ")")
           .call(xAxis)
           .selectAll("text")
           .style("text-anchor", "end")
@@ -229,7 +229,7 @@ $(document).ready(function() {
           .style("text-anchor", "start")
           .text(function(d) { return d; });
 
-      legendGroup.attr("transform", "translate(" + (-1 * width - 30) + "," + (height - 10) + ")");
+      legendGroup.attr("transform", "translate(" + (-1 * width - 50) + "," + (height - 10) + ")");
   } /* renderVisualization */
 
   function handleError(data) {
