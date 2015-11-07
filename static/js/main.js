@@ -65,7 +65,7 @@ $(document).ready(function() {
 
     $('<div id="output"></div>').insertAfter('.container');
 
-    var margin = {top: 20, right: 20, bottom: 30, left: 40};
+    var margin = {top: 50, right: 20, bottom: 80, left: 20};
     var width = 960 - margin.left - margin.right;
     var height = 500 - margin.top - margin.bottom;
 
@@ -73,9 +73,24 @@ $(document).ready(function() {
     var y = d3.scale.linear()
         .range([height, 0]);
 
+    //   if (xRange <= 7) { // 7 minutes
+    var tickStrFormat = d3.time.format.utc("%-H:%M:%S");
+    // } else if (xRange <= 1440) { // 1 day
+    //   var tickStrFormat = "%-H:%M";
+    // } else if (xRange <= 10080) { // 1 week
+    //   var tickStrFormat = "%-m/%-d@%-H:00";
+    // } else {
+    //   var tickStrFormat = "%-m/%-d";
+    // }
+
     var xAxis = d3.svg.axis()
         .scale(x)
-        .orient("bottom");
+        .orient("bottom")
+        // .ticks(d3.time.hour.utc, 1)
+        .tickFormat(tickStrFormat)
+        .tickSize(8)
+        .outerTickSize(0)
+        .tickPadding(4);
 
     var yAxis = d3.svg.axis()
         .scale(y)
@@ -92,25 +107,38 @@ $(document).ready(function() {
 
       svg.append("g")
           .attr("class", "x axis")
-          // .attr("transform", "translate(0," + (height + 10) + ")")
+          .attr("transform", "translate(0,-7)")
           .call(xAxis)
+          .selectAll("text")
+          .style("text-anchor", "end")
+          .attr("dx", "-.8em")
+          .attr("dy", ".15em")
+          .attr("transform", "rotate(-30) translate(50,-32)")
         .append("text")
           .attr("class", "label")
           .attr("x", width / 2)
-          .attr("y", -10)
+          .attr("y", -20)
           .style("text-anchor", "end")
           .text("Time (UTC)");
 
       svg.append("g")
           .attr("class", "x axis")
           .attr("transform", "translate(0," + (height + 10) + ")")
-          .call(xAxis);
+          .call(xAxis)
+          .selectAll("text")
+          .style("text-anchor", "end")
+          .attr("dx", "-.8em")
+          .attr("dy", ".15em")
+          .attr("transform", "rotate(-30) translate(25,15)");
         // .append("text")
         //   .attr("class", "label")
         //   .attr("x", width / 2)
         //   .attr("y", 40)
         //   .style("text-anchor", "end")
         //   .text("Time (UTC)");
+
+        var ticks = svg.selectAll(".x.axis:first-child .tick line")
+          .attr("transform", "translate(0,-8)");
 
       // svg.append("g")
       //     .attr("class", "y axis")
@@ -180,7 +208,10 @@ $(document).ready(function() {
         }
       }
 
-      var legend = svg.selectAll(".legend")
+      legendGroup = svg.append("g")
+          .attr("class", "legendGroup");
+
+      var legend = legendGroup.selectAll(".legend")
           .data(protocols)
         .enter().append("g")
           .attr("class", "legend")
