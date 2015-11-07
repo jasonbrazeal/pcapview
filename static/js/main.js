@@ -69,11 +69,6 @@ $(document).ready(function() {
     var width = 960 - margin.left - margin.right;
     var height = 500 - margin.top - margin.bottom;
 
-    var protoColors = {'HTTP': '#1f77b4',
-                       'HTTPS': '#ff7f0e',
-                       'SSH': '#2ca02c',
-                       'DNS': '#9467bd'}
-
     var x = d3.time.scale.utc().range([0, width]);
     var y = d3.scale.linear()
         .range([height, 0]);
@@ -92,42 +87,53 @@ $(document).ready(function() {
       .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-      x.domain(d3.extent(dataPoints, function(d) { return moment.utc(d[0]).toDate(); })).nice();
-      y.domain(d3.extent(dataPoints, function(d) { return Number(d[1]); })).nice();
+      x.domain(d3.extent(dataPoints, function(d) { return moment.utc(d[0]).toDate(); }));
+      y.domain(d3.extent(dataPoints, function(d) { return Number(d[1]); }));
 
       svg.append("g")
           .attr("class", "x axis")
-          .attr("transform", "translate(0," + (height + 10) + ")")
+          // .attr("transform", "translate(0," + (height + 10) + ")")
           .call(xAxis)
         .append("text")
           .attr("class", "label")
           .attr("x", width / 2)
-          .attr("y", 40)
+          .attr("y", -10)
           .style("text-anchor", "end")
           .text("Time (UTC)");
 
       svg.append("g")
-          .attr("class", "y axis")
-          .call(yAxis)
-        .append("text")
-          .attr("class", "label")
-          .attr("transform", "rotate(-90)")
-          .attr("y", 6)
-          .attr("dy", ".71em")
-          .style("text-anchor", "end")
-          .text("")
+          .attr("class", "x axis")
+          .attr("transform", "translate(0," + (height + 10) + ")")
+          .call(xAxis);
+        // .append("text")
+        //   .attr("class", "label")
+        //   .attr("x", width / 2)
+        //   .attr("y", 40)
+        //   .style("text-anchor", "end")
+        //   .text("Time (UTC)");
 
-      svg.append("g")
-          .attr("class", "y axis")
-          .call(yAxis)
-          .attr("transform", "translate(" + width + " ,0)")
-        .append("text")
-          .attr("class", "label")
-          .attr("transform", "rotate(-90)")
-          .attr("y", 6)
-          .attr("dy", ".71em")
-          .style("text-anchor", "end")
-          .text("")
+      // svg.append("g")
+      //     .attr("class", "y axis")
+      //     .call(yAxis)
+      //   .append("text")
+      //     .attr("class", "label")
+      //     .attr("transform", "rotate(-90)")
+      //     .attr("y", 6)
+      //     .attr("dy", ".71em")
+      //     .style("text-anchor", "end")
+      //     .text("")
+
+      // svg.append("g")
+      //     .attr("class", "y axis")
+      //     .call(yAxis)
+      //     .attr("transform", "translate(" + width + " ,0)")
+      //   .append("text")
+      //     .attr("class", "label")
+      //     .attr("transform", "rotate(-90)")
+      //     .attr("y", 6)
+      //     .attr("dy", ".71em")
+      //     .style("text-anchor", "end")
+      //     .text("")
 
       svg.append("g")
           .attr("class", "dotGroup")
@@ -135,7 +141,7 @@ $(document).ready(function() {
           .data(dataPoints)
         .enter().append("circle")
           .attr("class", "dot")
-          .attr("r", 3.5)
+          .attr("r", 2)
           .attr("cx", function(d) { return x(moment.utc(d[0]).toDate()); })
           .attr("cy", function(d) { return y(Number(d[1])); })
           .style("fill", function(d) { console.log(d[1]); return d3.rgb(protoColors[convDict[d[1]].proto]); });

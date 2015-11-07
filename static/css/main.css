@@ -1,5 +1,5 @@
-/* Sticky footer styles
--------------------------------------------------- */
+/* Sticky footer */
+
 html {
   position: relative;
   min-height: 100%;
@@ -20,22 +20,7 @@ body {
   visibility: hidden;
 }
 
-/* Custom page CSS
--------------------------------------------------- */
-/* Not required for template or sticky footer method. */
-
-body > .container {
-  padding: 60px 15px 0;
-}
-
-.container .text-muted {
-  margin: 20px 0;
-}
-
-.footer > .container {
-  padding-right: 15px;
-  padding-left: 15px;
-}
+/* Custom page CSS */
 
 .container * {
   text-align: center;
@@ -50,6 +35,10 @@ body > .container {
   z-index: 999;
 }
 
+#output svg {
+  display: block;
+  margin: 0 auto;
+}
 
 /* d3 */
 
