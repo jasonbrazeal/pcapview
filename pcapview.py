@@ -83,11 +83,14 @@ def ajax():
     conv_dict = {}
     for c in conversations:
         print(str(c) + ' - ' + str(len(c.packets)))
-        conv_dict.update({c.conv_id: {'src_ip': c.src_ip,
-                                      'dst_ip': c.dst_ip,
-                                      'proto': c.proto}})
         for p in c.packets:
             data_list.append((str(p.time), c.conv_id))
+
+        conv_dict.update({c.conv_id: {'src_ip': c.src_ip,
+                                      'dst_ip': c.dst_ip,
+                                      'proto': c.proto,
+                                      'first_point': (str(c.packets[0].time), c.conv_id),
+                                      'last_point': (str(c.packets[-1].time), c.conv_id)}})
 
     return json.dumps([conv_dict, data_list])
 

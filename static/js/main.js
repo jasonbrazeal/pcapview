@@ -126,7 +126,9 @@ $(document).ready(function() {
           .style("text-anchor", "end")
           .text("")
 
-      svg.selectAll(".dot")
+      svg.append("g")
+          .attr("class", "dotGroup")
+          .selectAll(".dot")
           .data(dataPoints)
         .enter().append("circle")
           .attr("class", "dot")
@@ -134,6 +136,40 @@ $(document).ready(function() {
           .attr("cx", function(d) { return x(moment.utc(d[0]).toDate()); })
           .attr("cy", function(d) { return y(Number(d[1])); })
           .style("fill", function(d) { return color(d[1]); });
+
+
+
+      lineGroup = svg.append("g")
+          .attr("class", "lineGroup");
+      // lineGroup.append("path")
+      //     .datum(data)
+      //     .attr("class", "line")
+      //     .attr("d", line)
+      //     .style("stroke", function(d) { return color(d[1]); });
+
+
+      line = d3.svg.line().interpolate("linear")
+             .x(function(d, i) {
+               return x(moment.utc(d[0]).toDate());
+             })
+             .y(function(d, i) {
+               return y(Number(d[1]));
+             });
+
+      console.log(convDict);
+      for (var convId in convDict) {
+        // convId: convDict[convId]
+
+        var lineData = [convDict[convId].first_point, convDict[convId].last_point];
+        lineGroup.append("path")
+          .datum(lineData)
+          .attr("class", "line")
+          .attr("d", line)
+          .style("stroke", function(d) { return color(d[1]); });
+      }
+
+
+
 
       // var legend = svg.selectAll(".legend")
       //     .dataPoints(color.domain())
