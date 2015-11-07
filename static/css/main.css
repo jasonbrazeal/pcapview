@@ -7,7 +7,8 @@ html {
 
 body {
   /* Margin bottom by footer height */
-  margin-bottom: 60px;
+  margin-bottom: 0;
+  padding-bottom: 0;
 }
 
 .footer {
@@ -22,6 +23,10 @@ body {
 
 /* Custom page CSS */
 
+html {
+  border: 3px solid transparent;
+}
+
 .container * {
   text-align: center;
 }
@@ -35,9 +40,16 @@ body {
   z-index: 999;
 }
 
+#output {
+  position: relative;
+  z-index: 1000;
+  margin: 1em auto 0 auto;
+  padding-bottom: 2em;
+}
+
 #output svg {
   display: block;
-  margin: 2em auto;
+  margin: 0 auto;
 }
 
 /* d3 */

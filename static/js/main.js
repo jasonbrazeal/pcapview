@@ -6,7 +6,8 @@ $(document).ready(function() {
   {
       // e.stopPropagation();
       e.preventDefault();
-      $(this).css('border', '3px solid #333');
+      $("html").css('border', '3px solid #333');
+      $("#upload").show();
       // if (event.target.className == "dropzone" ) {
       //     event.target.style.background = "purple";
       // }
@@ -15,7 +16,8 @@ $(document).ready(function() {
   {
       // e.stopPropagation();
       e.preventDefault();
-      $(this).css('border', '0');
+      $("html").css('border', '0');
+      $("#upload").hide();
   });
   // dragover fires continuously while the user drags an object over a valid drop target
   dropZone.on('dragover', function (e)
@@ -28,7 +30,8 @@ $(document).ready(function() {
   {
     e.stopPropagation();
     e.preventDefault();
-    $(this).css('border', '0');
+    $("html").css('border', '0');
+    $("#upload").hide();
     $('#output').remove();
     $('<div class="progress"><div></div></div>').insertAfter('.container');
     var files = e.originalEvent.dataTransfer.files;
@@ -50,6 +53,7 @@ $(document).ready(function() {
         handleError(data);
       }).always(function(data) {
         $('.progress').remove();
+        $('p.lead').text('drop another pcap file anywhere above');
       });
     }
   }); /* on drop */
@@ -63,7 +67,7 @@ $(document).ready(function() {
 
     $('<div id="output"></div>').insertAfter('.container');
 
-    var margin = {top: 60, right: 50, bottom: 80, left: 80};
+    var margin = {top: 60, right: 50, bottom: 100, left: 80};
     var width = 960 - margin.left - margin.right;
     // height of visualization is based on number of conversations
     var height = 125 + 15 * Object.getOwnPropertyNames(convDict).length - margin.top - margin.bottom;
@@ -173,8 +177,6 @@ $(document).ready(function() {
           .attr("cy", function(d) { return y(Number(d[1])); })
           .style("fill", function(d) { console.log(d[1]); return d3.rgb(protoColors[convDict[d[1]].proto]); });
 
-
-
       lineGroup = svg.append("g")
           .attr("class", "lineGroup");
       // lineGroup.append("path")
@@ -183,7 +185,6 @@ $(document).ready(function() {
       //     .attr("d", line)
       //     .style("stroke", function(d) { return d3.rgb(d[1]); });
 
-
       line = d3.svg.line().interpolate("linear")
              .x(function(d, i) {
                return x(moment.utc(d[0]).toDate());
@@ -191,8 +192,6 @@ $(document).ready(function() {
              .y(function(d, i) {
                return y(Number(d[1]));
              });
-
-      console.log(convDict);
 
       protocols = []
       for (var convId in convDict) {
@@ -230,6 +229,19 @@ $(document).ready(function() {
           .text(function(d) { return d; });
 
       legendGroup.attr("transform", "translate(" + (-1 * width - 50) + "," + (height - 10) + ")");
+
+      $("#output, #output *").on('drop', function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        return False;
+      });
+
+      $("#output, #output *").on('dragover', function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        return False;
+      });
+
   } /* renderVisualization */
 
   function handleError(data) {
