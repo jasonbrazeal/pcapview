@@ -69,7 +69,10 @@ $(document).ready(function() {
     var width = 960 - margin.left - margin.right;
     var height = 500 - margin.top - margin.bottom;
 
-    var color = d3.scale.category20b();
+    var protoColors = {'HTTP': '#1f77b4',
+                       'HTTPS': '#ff7f0e',
+                       'SSH': '#2ca02c',
+                       'DNS': '#9467bd'}
 
     var x = d3.time.scale.utc().range([0, width]);
     var y = d3.scale.linear()
@@ -135,7 +138,7 @@ $(document).ready(function() {
           .attr("r", 3.5)
           .attr("cx", function(d) { return x(moment.utc(d[0]).toDate()); })
           .attr("cy", function(d) { return y(Number(d[1])); })
-          .style("fill", function(d) { return color(d[1]); });
+          .style("fill", function(d) { console.log(d[1]); return d3.rgb(protoColors[convDict[d[1]].proto]); });
 
 
 
@@ -145,7 +148,7 @@ $(document).ready(function() {
       //     .datum(data)
       //     .attr("class", "line")
       //     .attr("d", line)
-      //     .style("stroke", function(d) { return color(d[1]); });
+      //     .style("stroke", function(d) { return d3.rgb(d[1]); });
 
 
       line = d3.svg.line().interpolate("linear")
@@ -157,38 +160,38 @@ $(document).ready(function() {
              });
 
       console.log(convDict);
-      for (var convId in convDict) {
-        // convId: convDict[convId]
 
+      protocols = []
+      for (var convId in convDict) {
         var lineData = [convDict[convId].first_point, convDict[convId].last_point];
         lineGroup.append("path")
           .datum(lineData)
           .attr("class", "line")
           .attr("d", line)
-          .style("stroke", function(d) { return color(d[1]); });
+          .style("stroke", function(d) { return d3.rgb(protoColors[convDict[convId].proto]); });
+        if (protocols.indexOf(convDict[convId].proto) < 0) {
+          protocols.push(convDict[convId].proto)
+        }
       }
 
+      var legend = svg.selectAll(".legend")
+          .data(protocols)
+        .enter().append("g")
+          .attr("class", "legend")
+          .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
 
+      legend.append("rect")
+          .attr("x", width - 18)
+          .attr("width", 18)
+          .attr("height", 18)
+          .style("fill", function(d) { return d3.rgb(protoColors[d]) });
 
-
-      // var legend = svg.selectAll(".legend")
-      //     .dataPoints(color.domain())
-      //   .enter().append("g")
-      //     .attr("class", "legend")
-      //     .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
-
-      // legend.append("rect")
-      //     .attr("x", width - 18)
-      //     .attr("width", 18)
-      //     .attr("height", 18)
-      //     .style("fill", color);
-
-      // legend.append("text")
-      //     .attr("x", width - 24)
-      //     .attr("y", 9)
-      //     .attr("dy", ".35em")
-      //     .style("text-anchor", "end")
-      //     .text(function(d) { return d; });
+      legend.append("text")
+          .attr("x", width - 24)
+          .attr("y", 9)
+          .attr("dy", ".35em")
+          .style("text-anchor", "end")
+          .text(function(d) { return d; });
 
   } /* renderVisualization */
 

@@ -61,7 +61,7 @@ body > .container {
 }
 
 .dot {
-  stroke: #000;
+  stroke: none;
 }
 
 /*
