@@ -4,13 +4,7 @@
 from socket import getservbyport
 
 class Packet():
-    '''
-        try to recognize protocol from destination port first
-        if unknown, then try to recognize it from source port
-        (e.g. if the capture started in the middle of a conversation)
-        if neither port is recognized, mark protocol as 'unknown'
-        and add mapping from lower port (likely the application's port) to 'unknown'
-        so packets with unknown protocols on the same ports will be grouped together
+    '''Represents an IP network packet
     '''
 
     protocols = {}
@@ -37,7 +31,9 @@ class Packet():
         return '<Packet {}:{} -> {}:{}>'.format(self.src_ip, self.src_port, self.dst_ip, self.dst_port)
 
 class Conversation():
-    '''
+    '''Represents a conversation between two IP addresses on a network
+       with a given application protocol. conv_id is a unique identifier
+       to make handling this information in d3.js easier.
     '''
     def __init__(self, src_ip, dst_ip, proto, conv_id=None):
         self.conv_id = conv_id
