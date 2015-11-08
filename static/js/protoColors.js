@@ -1,4 +1,4 @@
-// possible protocols received from Python socket.getservbyport()
+// all possible protocols received from Python socket.getservbyport()
 // assign predetermined colors to common protocols, choose one at random for other protocols
 protoColors = {"tcpmux": null,
                "nbp": null,

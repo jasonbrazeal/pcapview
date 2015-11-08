@@ -1,43 +1,31 @@
 $(document).ready(function() {
 
-  var dropZone = $('#dropzone');
-
-  dropZone.on('dragenter', function (e)
-  {
-      // e.stopPropagation();
+  /* set up drop zone for drag and drop uploads */
+  var dropZone = $("#dropzone");
+  dropZone.on("dragenter", function (e) {
       e.preventDefault();
-      $("html").css('border', '3px solid #333');
-      $("#upload").show();
-      // if (event.target.className == "dropzone" ) {
-      //     event.target.style.background = "purple";
-      // }
+      $("html").css("border", "3px solid #333");
+      $(".d3-tip").remove();
   });
-  dropZone.on('dragleave', function (e)
-  {
-      // e.stopPropagation();
+  dropZone.on("dragleave", function (e) {
       e.preventDefault();
-      $("html").css('border', '0');
-      $("#upload").hide();
+      $("html").css("border", "3px solid transparent");
+      $(".d3-tip").remove();
   });
-  // dragover fires continuously while the user drags an object over a valid drop target
-  dropZone.on('dragover', function (e)
-  {
-       // e.stopPropagation();
+  dropZone.on("dragover", function (e) {
        e.preventDefault();
-       // $(this).css('border', '3px solid #333');
   });
-  dropZone.on('drop', function (e)
-  {
+  dropZone.on("drop", function (e) {
     e.stopPropagation();
     e.preventDefault();
-    $("html").css('border', '0');
-    $("#upload").hide();
-    $('#output').remove();
-    $('<div class="progress"><div></div></div>').insertAfter('.container');
+    $("html").css("border", "3px solid transparent");
+    $(".d3-tip").remove();
+    $("#output").remove();
+    $("p.lead").text("");
+    $('<div class="progress"><div></div></div>').insertAfter(".container");
     var files = e.originalEvent.dataTransfer.files;
     if (files.length != 1) {
-     errMsg = "exactly one pcap file required";
-     handleError(errMsg)
+     handleError("exactly one pcap file required");
     } else {
       var fd = new FormData();
       fd.append("file", files[0]);
@@ -52,53 +40,48 @@ $(document).ready(function() {
       }).fail(function(data) {
         handleError(data);
       }).always(function(data) {
-        $('.progress').remove();
-        $('p.lead').text('drop another pcap file anywhere above');
+        $(".progress").remove();
+        $("p.lead").text("drop another pcap file anywhere above");
       });
     }
   }); /* on drop */
 
   function renderVisualization(raw_data) {
-    console.log('rendering visualization...')
-    // console.log(raw_data)
+    /* prepare data */
     data = JSON.parse(raw_data)
     convDict = data[0];
     dataPoints = data[1];
 
-    // var tipPoint = d3.tip().attr('class', 'd3-tip').html(function(d) { return d; });
-    // tipPoint.direction('e');
-    // tipPoint.offset(function() {
-    //   return [10, 0]
-    // });
-    // var tipLine = d3.tip().attr('class', 'd3-tip').html(function(d) { return d; });
-    // tipLine.direction('e');
+    /* initialize d3-tip */
+    var tipWest = d3.tip()
+        .attr("class", "d3-tip")
+        .html(function(d) { return "src: " + convDict[d[0][1]].src_ip; });
+    tipWest.direction("w");
+    var tipEast = d3.tip()
+        .attr("class", "d3-tip")
+        .html(function(d) { return "dst: " + convDict[d[0][1]].dst_ip; });
+    tipEast.direction("e");
 
-    $('<div id="output"></div>').insertAfter('.container');
+    /* insert div to hold visualization */
+    $('<div id="output"></div>').insertAfter(".container");
 
-    var margin = {top: 60, right: 50, bottom: 100, left: 80};
-    var width = 960 - margin.left - margin.right;
+    /* initialize visualization's margins, scales, and axes */
+    var margin = {top: 80, right: 80, bottom: 100, left: 80};
+    var width = 860 - margin.left - margin.right;
     // height of visualization is based on number of conversations
-    var height = 145 + 15 * Object.getOwnPropertyNames(convDict).length - margin.top - margin.bottom;
+    var height = 165 + 15 * Object.getOwnPropertyNames(convDict).length - margin.top - margin.bottom;
 
-    var x = d3.time.scale.utc().range([0, width]);
+    var x = d3.time.scale.utc()
+        .range([0, width])
+        .domain(d3.extent(dataPoints, function(d) { return moment.utc(d[0]).toDate(); }));
     var y = d3.scale.linear()
-        .range([height, 0]);
-
-    //   if (xRange <= 7) { // 7 minutes
-    var tickStrFormat = d3.time.format.utc("%-H:%M:%S");
-    // } else if (xRange <= 1440) { // 1 day
-    //   var tickStrFormat = "%-H:%M";
-    // } else if (xRange <= 10080) { // 1 week
-    //   var tickStrFormat = "%-m/%-d@%-H:00";
-    // } else {
-    //   var tickStrFormat = "%-m/%-d";
-    // }
+        .range([height, 0])
+        .domain(d3.extent(dataPoints, function(d) { return Number(d[1]); }));
 
     var xAxis = d3.svg.axis()
         .scale(x)
         .orient("bottom")
-        // .ticks(d3.time.hour.utc, 1)
-        .tickFormat(tickStrFormat)
+        .tickFormat(d3.time.format.utc("%-H:%M:%S"))
         .tickSize(8)
         .outerTickSize(0)
         .tickPadding(4);
@@ -107,76 +90,48 @@ $(document).ready(function() {
         .scale(y)
         .orient("left");
 
+    /* draw svg element */
     var svg = d3.select("#output").append("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
-        // .call(tipPoint)
-        // .call(tipLine)
+        .call(tipWest)
+        .call(tipEast)
       .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-      x.domain(d3.extent(dataPoints, function(d) { return moment.utc(d[0]).toDate(); }));
-      y.domain(d3.extent(dataPoints, function(d) { return Number(d[1]); }));
-
-      svg.append("g")
+      /* draw axes */
+      var topAxis = svg.append("g")
           .attr("class", "x axis")
           .attr("transform", "translate(0,-15)")
-          .call(xAxis)
-          .selectAll("text")
+          .call(xAxis);
+
+      topAxis.append("text")
+          .attr("class", "label")
+          .attr("x", width / 2)
+          .attr("y", -52)
+          .style("text-anchor", "middle")
+          .text("Time (UTC)");
+
+      topAxis.selectAll(".tick text")
           .style("text-anchor", "end")
           .attr("dx", "-.8em")
           .attr("dy", ".15em")
-          .attr("transform", "rotate(-30) translate(50,-32)")
-        .append("text")
-          .attr("class", "label")
-          .attr("x", width / 2)
-          .attr("y", -20)
-          .style("text-anchor", "end")
-          .text("Time (UTC)");
+          .attr("transform", "rotate(-30) translate(50,-32)");
 
       svg.append("g")
           .attr("class", "x axis")
           .attr("transform", "translate(0," + (height + 15) + ")")
           .call(xAxis)
-          .selectAll("text")
+          .selectAll(".tick text")
           .style("text-anchor", "end")
           .attr("dx", "-.8em")
           .attr("dy", ".15em")
           .attr("transform", "rotate(-30) translate(25,15)");
-        // .append("text")
-        //   .attr("class", "label")
-        //   .attr("x", width / 2)
-        //   .attr("y", 40)
-        //   .style("text-anchor", "end")
-        //   .text("Time (UTC)");
 
-        var ticks = svg.selectAll(".x.axis:first-child .tick line")
-          .attr("transform", "translate(0,-8)");
+      var ticks = svg.selectAll(".x.axis:first-child .tick line")
+        .attr("transform", "translate(0,-8)");
 
-      // svg.append("g")
-      //     .attr("class", "y axis")
-      //     .call(yAxis)
-      //   .append("text")
-      //     .attr("class", "label")
-      //     .attr("transform", "rotate(-90)")
-      //     .attr("y", 6)
-      //     .attr("dy", ".71em")
-      //     .style("text-anchor", "end")
-      //     .text("")
-
-      // svg.append("g")
-      //     .attr("class", "y axis")
-      //     .call(yAxis)
-      //     .attr("transform", "translate(" + width + " ,0)")
-      //   .append("text")
-      //     .attr("class", "label")
-      //     .attr("transform", "rotate(-90)")
-      //     .attr("y", 6)
-      //     .attr("dy", ".71em")
-      //     .style("text-anchor", "end")
-      //     .text("")
-
-      // packet scatterplot
+      /* draw packet scatterplot */
       svg.append("g")
           .attr("class", "dotGroup")
           .selectAll(".dot")
@@ -186,18 +141,11 @@ $(document).ready(function() {
           .attr("r", 3)
           .attr("cx", function(d) { return x(moment.utc(d[0]).toDate()); })
           .attr("cy", function(d) { return y(Number(d[1])); })
-          .style("fill", function(d) { return d3.rgb(protoColors[convDict[d[1]].proto]); })
-          // .on('mouseover', tipPoint.show)
-          // .on('mouseout', tipPoint.hide);
+          .style("fill", function(d) { return d3.rgb(protoColors[convDict[d[1]].proto]); });
 
-      // conversation lines and hover-over rectangles
+      /* draw conversation lines */
       var lineGroup = svg.append("g")
           .attr("class", "lineGroup");
-      // lineGroup.append("path")
-      //     .datum(data)
-      //     .attr("class", "line")
-      //     .attr("d", line)
-      //     .style("stroke", function(d) { return d3.rgb(d[1]); });
 
       var line = d3.svg.line().interpolate("linear")
              .x(function(d, i) {
@@ -207,11 +155,10 @@ $(document).ready(function() {
                return y(Number(d[1]));
              });
 
-      var rectGroup = svg.append("g")
-          .attr("class", "rectGroup");
-
-
+      // while we're looping though the conversation data drawing the lines...
+      // get a list of protocols in the data for the legend
       var protocols = [];
+      // convert conversation data into a list for the hover-over rectangles
       var convData = [];
       for (var convId in convDict) {
         var lineData = [convDict[convId].first_point, convDict[convId].last_point];
@@ -221,35 +168,48 @@ $(document).ready(function() {
           .attr("class", "line")
           .attr("d", line)
           .style("stroke", function(d) { return d3.rgb(protoColors[convDict[convId].proto]); })
-          .style("stroke-width", "3px")
-          // .on('mouseover', tipLine.show)
-          // .on('mouseout', tipLine.hide);
+          .style("stroke-width", "3px");
         if (protocols.indexOf(convDict[convId].proto) < 0) {
           protocols.push(convDict[convId].proto)
         }
       }
 
+      /* draw hover-over rectangles for tooltips */
+      var rectGroup = svg.append("g")
+          .attr("class", "rectGroup");
+
+      function showTips(d){
+        tipWest.show(d);
+        tipEast.show(d);
+      }
+
+      function hideTips(d){
+        tipWest.hide(d);
+        tipEast.hide(d);
+      }
+
       convData.forEach(function(convo, i, arr) {
         rectGroup.append("rect")
           .datum(convo)
-          .attr("class", "conv-hover")
           .attr("x", function(d) {
                         console.log(d)
-                        var coord_x = x(moment.utc(d[0][0]).subtract("1", "second").toDate());
-                        return coord_x; })
+                        var coord_x = x(moment.utc(d[0][0]).toDate());
+                        return coord_x - 10; })
           .attr("y", function(d) {
                         var revConvId = (Object.getOwnPropertyNames(convDict).length + 1 - Number(d[0][1])).toString();
-                        return 15 * Number(convDict[revConvId].first_point[1]) - 20; })
+                        return 15 * Number(convDict[revConvId].first_point[1]) - 21; })
           .attr("width", function(d) {
-                        var coord_x_first = x(moment.utc(d[0][0]).subtract("1", "second").toDate());
-                        var coord_x_last = x(moment.utc(d[1][0]).add("1", "second").toDate());
-                        return coord_x_last - coord_x_first })
-          .attr("height", 10)
-          .style("stroke", function(d) { return d3.rgb(protoColors[convDict[d[0][1]].proto]); })
-          .style("fill", "transparent");
+                        var coord_x_first = x(moment.utc(d[0][0]).toDate());
+                        var coord_x_last = x(moment.utc(d[1][0]).toDate());
+                        return coord_x_last - coord_x_first + 20; })
+          .attr("height", 12)
+          .style("fill", "transparent")
+          .style("stroke", "transparent")
+          .on("mouseover", showTips)
+          .on("mouseout", hideTips)
       });
 
-
+      /* draw legend of protocols */
       legendGroup = svg.append("g")
           .attr("class", "legendGroup");
 
@@ -274,31 +234,25 @@ $(document).ready(function() {
 
       legendGroup.attr("transform", "translate(" + (-1 * width - 50) + "," + (height - 10) + ")");
 
-      // prevent dragging and dropping on the visualization
-      $("#output, #output *").on('drop', function(e) {
+      /* prevent dragging and dropping on the visualization */
+      $("#output, #output *").on("drop", function(e) {
         e.stopPropagation();
         e.preventDefault();
         return false;
       });
 
-      $("#output, #output *").on('dragover', function(e) {
+      $("#output, #output *").on("dragover", function(e) {
         e.stopPropagation();
         e.preventDefault();
         return false;
-      });
-
-      $(".conv-hover").hover(function(e) {
-        $(this).css("fill", $(this).css("stroke"));
-      }, function(e) {
-        $(this).css("fill", "transparent");
       });
 
   } /* renderVisualization */
 
   function handleError(data) {
-    console.log('handling error...')
-    $('<div id="output"></div>').insertAfter('.container');
-    $('#output').text(data);
+    console.log("handling error...")
+    $('<div id="output"></div>').insertAfter(".container");
+    $("#output").text(data);
   } /* handleError */
 
 }); /* document.ready */
