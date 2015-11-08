@@ -9,8 +9,9 @@
 * Python 3 on Linux
   * tested with Python 3.4.3 on Ubuntu 14.04.3
 * Python Packages: flask (0.10.1) and its dependencies
-    * `pip install -r requirements.txt`
+  * `pip install -r requirements.txt`
 
 ## Run
 
-* `python pcapview.py`
+* To start the application listening on port 5000:
+  * `python pcapview.py`
