@@ -210,9 +210,12 @@ $(document).ready(function() {
       var rectGroup = svg.append("g")
           .attr("class", "rectGroup");
 
-      protocols = []
+
+      var protocols = [];
+      var convData = [];
       for (var convId in convDict) {
         var lineData = [convDict[convId].first_point, convDict[convId].last_point];
+        convData.push(lineData);
         lineGroup.append("path")
           .datum(lineData)
           .attr("class", "line")
@@ -221,23 +224,31 @@ $(document).ready(function() {
           .style("stroke-width", "3px")
           // .on('mouseover', tipLine.show)
           // .on('mouseout', tipLine.hide);
-        rectGroup.append("rect")
-          .datum(lineData)
-          .attr("class", "conv-hover")
-          // .attr("id", "conv-" + convDict[convId].first_point[1])
-          .attr("x", function(d) { return -5; })
-          .attr("y", function(d) {
-                        var revConvId = (Object.getOwnPropertyNames(convDict).length + 1 - Number(convId)).toString();
-                        return 15 * Number(convDict[revConvId].first_point[1]) - 20; })
-          .attr("width", function(d) { return width + 10 })
-          .attr("height", 10)
-          .style("stroke", function(d) { return d3.rgb(protoColors[convDict[convId].proto]); })
-          .style("fill", "transparent");
-
         if (protocols.indexOf(convDict[convId].proto) < 0) {
           protocols.push(convDict[convId].proto)
         }
       }
+
+      convData.forEach(function(convo, i, arr) {
+        rectGroup.append("rect")
+          .datum(convo)
+          .attr("class", "conv-hover")
+          .attr("x", function(d) {
+                        console.log(d)
+                        var coord_x = x(moment.utc(d[0][0]).subtract("1", "second").toDate());
+                        return coord_x; })
+          .attr("y", function(d) {
+                        var revConvId = (Object.getOwnPropertyNames(convDict).length + 1 - Number(d[0][1])).toString();
+                        return 15 * Number(convDict[revConvId].first_point[1]) - 20; })
+          .attr("width", function(d) {
+                        var coord_x_first = x(moment.utc(d[0][0]).subtract("1", "second").toDate());
+                        var coord_x_last = x(moment.utc(d[1][0]).add("1", "second").toDate());
+                        return coord_x_last - coord_x_first })
+          .attr("height", 10)
+          .style("stroke", function(d) { return d3.rgb(protoColors[convDict[d[0][1]].proto]); })
+          .style("fill", "transparent");
+      });
+
 
       legendGroup = svg.append("g")
           .attr("class", "legendGroup");
