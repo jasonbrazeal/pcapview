@@ -70,7 +70,6 @@ def ajax():
     conv_ctr = len(conversations)
 
     for c in conversations:
-        print(str(c) + ' - ' + str(len(c.packets)))
         c.conv_id = str(conv_ctr)
         conv_ctr -= 1
         for p in c.packets:
