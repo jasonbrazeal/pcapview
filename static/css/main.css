@@ -1,5 +1,4 @@
 html {
-  border: 3px solid transparent;
   position: relative;
   min-height: 100%;
 }
@@ -7,6 +6,10 @@ html {
 body {
   margin-bottom: 0;
   padding-bottom: 0;
+}
+
+.container {
+  width: 100% !important;
 }
 
 .container * {
@@ -24,10 +27,10 @@ body {
 
 #output {
   position: relative;
-  z-index: 1000;
   margin: 1em auto 0 auto;
   padding-bottom: 2em;
   min-height: 500px;
+  z-index: 1000;
 }
 
 #output svg {
@@ -122,7 +125,7 @@ body {
   color: #fff;
   border-radius: 2px;
   pointer-events: none;
-  z-index: 1112;
+  z-index: 1001;
 }
 
 /* Creates a small triangle extender for the tooltip */
@@ -135,7 +138,7 @@ body {
   color: rgba(0, 0, 0, 0.8);
   position: absolute;
   pointer-events: none;
-  z-index: 1112;
+  z-index: 1001;
 }
 
 /* Northward tooltips */
@@ -145,7 +148,7 @@ body {
   top: 100%;
   left: 0;
   text-align: center;
-  z-index: 1112;
+  z-index: 1001;
 }
 
 /* Eastward tooltips */
@@ -154,7 +157,7 @@ body {
   margin: -4px 0 0 0;
   top: 50%;
   left: -8px;
-  z-index: 1112;
+  z-index: 1001;
 }
 
 /* Southward tooltips */
@@ -164,7 +167,7 @@ body {
   top: -8px;
   left: 0;
   text-align: center;
-  z-index: 1112;
+  z-index: 1001;
 }
 
 /* Westward tooltips */
@@ -173,5 +176,5 @@ body {
   margin: -4px 0 0 -1px;
   top: 50%;
   left: 100%;
-  z-index: 1112;
+  z-index: 1001;
 }

@@ -4,12 +4,17 @@ $(document).ready(function() {
   var dropZone = $("#dropzone");
   dropZone.on("dragenter", function (e) {
       e.preventDefault();
-      $("html").css("border", "3px solid #333");
+      if ($("#output").length) {
+        $(".container").css("background", "rgba(238, 238, 238, .4)");
+      } else {
+        $("#dropzone").css("background", "rgba(238, 238, 238, .4)");
+      }
       $(".d3-tip").remove();
   });
   dropZone.on("dragleave", function (e) {
       e.preventDefault();
-      $("html").css("border", "3px solid transparent");
+      $("#dropzone").css("background", "transparent");
+      $(".container").css("background", "transparent");
       $(".d3-tip").remove();
   });
   dropZone.on("dragover", function (e) {
@@ -18,7 +23,8 @@ $(document).ready(function() {
   dropZone.on("drop", function (e) {
     e.stopPropagation();
     e.preventDefault();
-    $("html").css("border", "3px solid transparent");
+    $("#dropzone").css("background", "transparent");
+    $(".container").css("background", "transparent");
     $(".d3-tip").remove();
     $("#output").remove();
     $("p.lead").text("");
