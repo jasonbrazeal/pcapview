@@ -4,7 +4,7 @@
 from socket import getservbyport
 
 class Packet():
-    '''Represents an IP network packet
+    '''Represents an IP network packet.
     '''
 
     protocols = {}

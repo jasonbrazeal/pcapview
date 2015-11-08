@@ -43,7 +43,10 @@ def ajax():
     packets = []
     for line in tshark_lines:
         p = line.split()
-        dt = datetime.strptime(p[0] + p[1].rstrip('0'), '%Y-%m-%d%H:%M:%S.%f')
+        try:
+            dt = datetime.strptime(p[0] + p[1].rstrip('0'), '%Y-%m-%d%H:%M:%S.%f')
+        except ValueError:
+            abort(500)
         del p[:2]
         p.append(dt)
         # if we get a packet line with an odd amount of data, ignore it
