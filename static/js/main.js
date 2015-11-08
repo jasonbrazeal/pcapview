@@ -176,6 +176,7 @@ $(document).ready(function() {
       //     .style("text-anchor", "end")
       //     .text("")
 
+      // packet scatterplot
       svg.append("g")
           .attr("class", "dotGroup")
           .selectAll(".dot")
@@ -189,7 +190,8 @@ $(document).ready(function() {
           // .on('mouseover', tipPoint.show)
           // .on('mouseout', tipPoint.hide);
 
-      lineGroup = svg.append("g")
+      // conversation lines and hover-over rectangles
+      var lineGroup = svg.append("g")
           .attr("class", "lineGroup");
       // lineGroup.append("path")
       //     .datum(data)
@@ -197,13 +199,16 @@ $(document).ready(function() {
       //     .attr("d", line)
       //     .style("stroke", function(d) { return d3.rgb(d[1]); });
 
-      line = d3.svg.line().interpolate("linear")
+      var line = d3.svg.line().interpolate("linear")
              .x(function(d, i) {
                return x(moment.utc(d[0]).toDate());
              })
              .y(function(d, i) {
                return y(Number(d[1]));
              });
+
+      var rectGroup = svg.append("g")
+          .attr("class", "rectGroup");
 
       protocols = []
       for (var convId in convDict) {
@@ -216,6 +221,19 @@ $(document).ready(function() {
           .style("stroke-width", "3px")
           // .on('mouseover', tipLine.show)
           // .on('mouseout', tipLine.hide);
+        rectGroup.append("rect")
+          .datum(lineData)
+          .attr("class", "conv-hover")
+          // .attr("id", "conv-" + convDict[convId].first_point[1])
+          .attr("x", function(d) { return -5; })
+          .attr("y", function(d) {
+                        var revConvId = (Object.getOwnPropertyNames(convDict).length + 1 - Number(convId)).toString();
+                        return 15 * Number(convDict[revConvId].first_point[1]) - 20; })
+          .attr("width", function(d) { return width + 10 })
+          .attr("height", 10)
+          .style("stroke", function(d) { return d3.rgb(protoColors[convDict[convId].proto]); })
+          .style("fill", "transparent");
+
         if (protocols.indexOf(convDict[convId].proto) < 0) {
           protocols.push(convDict[convId].proto)
         }
@@ -245,6 +263,7 @@ $(document).ready(function() {
 
       legendGroup.attr("transform", "translate(" + (-1 * width - 50) + "," + (height - 10) + ")");
 
+      // prevent dragging and dropping on the visualization
       $("#output, #output *").on('drop', function(e) {
         e.stopPropagation();
         e.preventDefault();
@@ -255,6 +274,12 @@ $(document).ready(function() {
         e.stopPropagation();
         e.preventDefault();
         return false;
+      });
+
+      $(".conv-hover").hover(function(e) {
+        $(this).css("fill", $(this).css("stroke"));
+      }, function(e) {
+        $(this).css("fill", "transparent");
       });
 
   } /* renderVisualization */
