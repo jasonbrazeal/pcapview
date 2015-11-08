@@ -55,6 +55,7 @@ body {
   position: absolute;
   top: 3em;
   left: calc(50% - 1em);
+  color: rgba(80, 80, 80, .8);
 }
 
 /* d3 */

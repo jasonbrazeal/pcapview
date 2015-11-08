@@ -227,7 +227,6 @@ $(document).ready(function() {
         rectGroup.append("rect")
           .datum(convo)
           .attr("x", function(d) {
-                        console.log(d)
                         var coord_x = x(moment.utc(d[0][0]).toDate());
                         return coord_x - 10; })
           .attr("y", function(d) {
