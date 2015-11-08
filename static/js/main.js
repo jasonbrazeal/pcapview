@@ -4,14 +4,17 @@ $(document).ready(function() {
   var dropZone = $("#dropzone");
   dropZone.on("dragenter", function (e) {
       e.preventDefault();
-      if ($("#output").length) {
+      $(".d3-tip").remove();
+      if ($(".output").length) {
         $(".container").css("background", "rgba(238, 238, 238, .4)");
         $('<div id="upload-icon-top"><span class="glyphicon glyphicon-floppy-open" aria-hidden="true"></span></div>').insertAfter("h1");
-      } else {
+      } else if ($(".progress").length) {
+        return False;
+      }
+      else {
         $("#dropzone").css("background", "rgba(238, 238, 238, .4)");
         $('<div id="upload-icon"><span class="glyphicon glyphicon-floppy-open" aria-hidden="true"></span></div>').insertAfter("p.lead");
       }
-      $(".d3-tip").remove();
   });
   dropZone.on("dragleave", function (e) {
       e.preventDefault();
@@ -27,12 +30,15 @@ $(document).ready(function() {
   dropZone.on("drop", function (e) {
     e.stopPropagation();
     e.preventDefault();
+    if ($(".progress").length) {
+        return False;
+      }
     $("#dropzone").css("background", "transparent");
     $(".container").css("background", "transparent");
     $("#upload-icon").remove();
     $("#upload-icon-top").remove();
     $(".d3-tip").remove();
-    $("#output").remove();
+    $(".output").remove();
     $("p.lead").text("");
     $('<div class="progress"><div></div></div>').insertAfter(".container");
     var files = e.originalEvent.dataTransfer.files;
@@ -61,14 +67,14 @@ $(document).ready(function() {
     /* display message to user */
     $(".progress").remove();
     $("p.lead").text("drop another pcap file anywhere above");
-    var outout = $('<div id="output"><p class="alert alert-danger lead">' + data + '</p></div>').insertAfter(".container");
+    $('<div class="output"><p class="alert alert-danger lead">' + data + '</p></div>').insertAfter(".container");
     /* prevent dragging and dropping on the error message */
-    $("#output, #output *").on("drop", function(e) {
+    $(".output, .output *").on("drop", function(e) {
       e.stopPropagation();
       e.preventDefault();
       return false;
     });
-    $("#output, #output *").on("dragover", function(e) {
+    $(".output, .output *").on("dragover", function(e) {
       e.stopPropagation();
       e.preventDefault();
       return false;
@@ -92,7 +98,7 @@ $(document).ready(function() {
     tipEast.direction("e");
 
     /* insert div to hold visualization */
-    $('<div id="output"></div>').insertAfter(".container");
+    $('<div class="output"></div>').insertAfter(".container");
 
     /* initialize visualization's margins, scales, and axes */
     var margin = {top: 80, right: 80, bottom: 100, left: 80};
@@ -120,7 +126,7 @@ $(document).ready(function() {
         .orient("left");
 
     /* draw svg element */
-    var svg = d3.select("#output").append("svg")
+    var svg = d3.select(".output").append("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
         .call(tipWest)
@@ -264,13 +270,13 @@ $(document).ready(function() {
       legendGroup.attr("transform", "translate(" + (-1 * width - 50) + "," + (height - 10) + ")");
 
       /* prevent dragging and dropping on the visualization */
-      $("#output, #output *").on("drop", function(e) {
+      $(".output, .output *").on("drop", function(e) {
         e.stopPropagation();
         e.preventDefault();
         return false;
       });
 
-      $("#output, #output *").on("dragover", function(e) {
+      $(".output, .output *").on("dragover", function(e) {
         e.stopPropagation();
         e.preventDefault();
         return false;

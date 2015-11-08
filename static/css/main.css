@@ -25,20 +25,20 @@ body {
   z-index: 999;
 }
 
-#output {
+.output {
   position: relative;
-  margin: 1em auto 0 auto;
+  margin: 0 auto;
   padding-bottom: 2em;
   min-height: 500px;
   z-index: 1000;
 }
 
-#output svg {
+.output svg {
   display: block;
   margin: 0 auto;
 }
 
-#output p.alert {
+.output p.alert {
   display: block;
   width: 33%;
   margin: 0 auto;
