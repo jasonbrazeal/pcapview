@@ -38,6 +38,13 @@ body {
   margin: 0 auto;
 }
 
+#output p.alert {
+  display: block;
+  width: 33%;
+  margin: 0 auto;
+  text-align: center;
+}
+
 #upload-icon {
   font-size: 5em;
   margin-top: 2em;

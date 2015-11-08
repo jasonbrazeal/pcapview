@@ -48,15 +48,32 @@ $(document).ready(function() {
         processData: false,  // tell jQuery not to process the data
         contentType: false   // tell jQuery not to set contentType
       }).done(function(data) {
-        renderVisualization(data);
-      }).fail(function(data) {
-        handleError(data);
-      }).always(function(data) {
         $(".progress").remove();
         $("p.lead").text("drop another pcap file anywhere above");
+        renderVisualization(data);
+      }).fail(function(data) {
+        handleError("error processing pcap file");
       });
     }
   }); /* on drop */
+
+  function handleError(data) {
+    /* display message to user */
+    $(".progress").remove();
+    $("p.lead").text("drop another pcap file anywhere above");
+    var outout = $('<div id="output"><p class="alert alert-danger lead">' + data + '</p></div>').insertAfter(".container");
+    /* prevent dragging and dropping on the error message */
+    $("#output, #output *").on("drop", function(e) {
+      e.stopPropagation();
+      e.preventDefault();
+      return false;
+    });
+    $("#output, #output *").on("dragover", function(e) {
+      e.stopPropagation();
+      e.preventDefault();
+      return false;
+    });
+  } /* handleError */
 
   function renderVisualization(raw_data) {
     /* prepare data */
@@ -150,7 +167,7 @@ $(document).ready(function() {
           .data(dataPoints)
         .enter().append("circle")
           .attr("class", "dot")
-          .attr("r", 3)
+          .attr("r", 2)
           .attr("cx", function(d) { return x(moment.utc(d[0]).toDate()); })
           .attr("cy", function(d) { return y(Number(d[1])); })
           .style("fill", function(d) { return d3.rgb(protoColors[convDict[d[1]].proto]); });
@@ -180,7 +197,7 @@ $(document).ready(function() {
           .attr("class", "line")
           .attr("d", line)
           .style("stroke", function(d) { return d3.rgb(protoColors[convDict[convId].proto]); })
-          .style("stroke-width", "3px");
+          .style("stroke-width", "1px");
         if (protocols.indexOf(convDict[convId].proto) < 0) {
           protocols.push(convDict[convId].proto)
         }
@@ -260,11 +277,5 @@ $(document).ready(function() {
       });
 
   } /* renderVisualization */
-
-  function handleError(data) {
-    console.log("handling error...")
-    $('<div id="output"></div>').insertAfter(".container");
-    $("#output").text(data);
-  } /* handleError */
 
 }); /* document.ready */
