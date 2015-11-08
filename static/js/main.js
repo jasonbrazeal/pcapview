@@ -6,8 +6,10 @@ $(document).ready(function() {
       e.preventDefault();
       if ($("#output").length) {
         $(".container").css("background", "rgba(238, 238, 238, .4)");
+        $('<div id="upload-icon-top"><span class="glyphicon glyphicon-floppy-open" aria-hidden="true"></span></div>').insertAfter("h1");
       } else {
         $("#dropzone").css("background", "rgba(238, 238, 238, .4)");
+        $('<div id="upload-icon"><span class="glyphicon glyphicon-floppy-open" aria-hidden="true"></span></div>').insertAfter("p.lead");
       }
       $(".d3-tip").remove();
   });
@@ -15,6 +17,8 @@ $(document).ready(function() {
       e.preventDefault();
       $("#dropzone").css("background", "transparent");
       $(".container").css("background", "transparent");
+      $("#upload-icon").remove();
+      $("#upload-icon-top").remove();
       $(".d3-tip").remove();
   });
   dropZone.on("dragover", function (e) {
@@ -25,6 +29,8 @@ $(document).ready(function() {
     e.preventDefault();
     $("#dropzone").css("background", "transparent");
     $(".container").css("background", "transparent");
+    $("#upload-icon").remove();
+    $("#upload-icon-top").remove();
     $(".d3-tip").remove();
     $("#output").remove();
     $("p.lead").text("");

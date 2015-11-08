@@ -38,6 +38,18 @@ body {
   margin: 0 auto;
 }
 
+#upload-icon {
+  font-size: 5em;
+  margin-top: 2em;
+}
+
+#upload-icon-top {
+  font-size: 2em;
+  position: absolute;
+  top: 3em;
+  left: calc(50% - 1em);
+}
+
 /* d3 */
 
 .axis path,
