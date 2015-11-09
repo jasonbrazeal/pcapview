@@ -69,6 +69,7 @@ $(document).ready(function() {
     $(".progress").remove();
     $("p.lead").text("drop another pcap file anywhere above");
     $('<div class="output"><p class="alert alert-danger lead">' + data + '</p></div>').insertAfter(".container");
+    $(".output").height($(window).height() - $(".container").height() - 10);
     /* prevent dragging and dropping on the error message */
     $(".output, .output *").on("drop", function(e) {
       e.stopPropagation();
@@ -100,6 +101,7 @@ $(document).ready(function() {
 
     /* insert div to hold visualization */
     $('<div class="output"></div>').insertAfter(".container");
+    $(".output").height($(window).height() - $(".container").height() - 65);
 
     /* initialize visualization's margins, scales, and axes */
     var margin = {top: 80, right: 150, bottom: 100, left: 90};

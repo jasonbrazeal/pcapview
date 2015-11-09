@@ -29,7 +29,6 @@ body {
   position: relative;
   margin: 0 auto;
   padding-bottom: 2em;
-  min-height: 500px;
   z-index: 1000;
 }
 
