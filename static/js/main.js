@@ -39,6 +39,7 @@ $(document).ready(function() {
     $("#upload-icon-top").remove();
     $(".d3-tip").remove();
     $(".output").remove();
+    $(".ip-button").remove();
     $("p.lead").text("");
     $('<div class="progress"><div></div></div>').insertAfter(".container");
     var files = e.originalEvent.dataTransfer.files;
@@ -101,8 +102,8 @@ $(document).ready(function() {
     $('<div class="output"></div>').insertAfter(".container");
 
     /* initialize visualization's margins, scales, and axes */
-    var margin = {top: 80, right: 80, bottom: 100, left: 80};
-    var width = 860 - margin.left - margin.right;
+    var margin = {top: 80, right: 150, bottom: 100, left: 80};
+    var width = 900 - margin.left - margin.right;
     // height of visualization is based on number of conversations
     var height = 165 + 15 * Object.getOwnPropertyNames(convDict).length - margin.top - margin.bottom;
 
@@ -145,10 +146,12 @@ $(document).ready(function() {
           .attr("x", width / 2)
           .attr("y", -52)
           .style("text-anchor", "middle")
+          .style("font-size", ".75em")
           .text("Time (UTC)");
 
       topAxis.selectAll(".tick text")
           .style("text-anchor", "end")
+          .style("font-size", ".75em")
           .attr("dx", "-.8em")
           .attr("dy", ".15em")
           .attr("transform", "rotate(-30) translate(50,-32)");
@@ -159,6 +162,7 @@ $(document).ready(function() {
           .call(xAxis)
           .selectAll(".tick text")
           .style("text-anchor", "end")
+          .style("font-size", ".75em")
           .attr("dx", "-.8em")
           .attr("dy", ".15em")
           .attr("transform", "rotate(-30) translate(25,15)");
@@ -240,8 +244,36 @@ $(document).ready(function() {
           .style("fill", "transparent")
           .style("stroke", "transparent")
           .on("mouseover", showTips)
-          .on("mouseout", hideTips)
-      });
+          .on("mouseout", hideTips);
+
+        rectGroup.append("text")
+          .datum(convo)
+          .attr("x", function(d) {
+                        var coord_x = x(moment.utc(d[0][0]).toDate());
+                        return coord_x - 5; })
+          .attr("y", function(d) {
+                        var revConvId = (Object.getOwnPropertyNames(convDict).length + 1 - Number(d[0][1])).toString();
+                        return 15 * Number(convDict[revConvId].first_point[1]) - 15; })
+          .attr("dy", ".35em")
+          .style("text-anchor", "end")
+          .style("font-size", ".75em")
+          .attr("class", "ip-label")
+          .text(function(d) { return convDict[d[0][1]].src_ip; });
+
+        rectGroup.append("text")
+          .datum(convo)
+          .attr("x", function(d) {
+                        var coord_x = x(moment.utc(d[1][0]).toDate());
+                        return coord_x + 5; })
+          .attr("y", function(d) {
+                        var revConvId = (Object.getOwnPropertyNames(convDict).length + 1 - Number(d[1][1])).toString();
+                        return 15 * Number(convDict[revConvId].first_point[1]) - 15; })
+          .attr("dy", ".35em")
+          .style("text-anchor", "start")
+          .style("font-size", ".75em")
+          .attr("class", "ip-label")
+          .text(function(d) { return convDict[d[1][1]].dst_ip; });
+        });
 
       /* draw legend of protocols */
       legendGroup = svg.append("g")
@@ -251,7 +283,7 @@ $(document).ready(function() {
           .data(protocols)
         .enter().append("g")
           .attr("class", "legend")
-          .attr("transform", function(d, i) { return "translate(0," + (i * -20) + ")"; });
+          .attr("transform", function(d, i) { return "translate(0," + (i * 20) + ")"; });
 
       legend.append("rect")
           .attr("x", width - 18)
@@ -264,18 +296,26 @@ $(document).ready(function() {
           .attr("y", 9)
           .attr("dy", ".35em")
           .style("text-anchor", "start")
+          .style("font-size", ".75em")
           .text(function(d) { return d; });
 
-      legendGroup.attr("transform", "translate(" + (-1 * width - 50) + "," + (height - 10) + ")");
+      legendGroup.attr("transform", "translate(100, -50)")
 
-      /* prevent dragging and dropping on the visualization */
-      $(".output, .output *").on("drop", function(e) {
+      /* draw button to toggle ip addresses */
+      $('<button type="button" class="btn btn-default ip-button" data-toggle="button">Show IPs</button>').insertAfter(".container");
+      $(".ip-button").on("click", function() {
+              // $(this).toggleClass("active");
+              $(".ip-label").toggle();
+            });
+
+      /* prevent dragging and dropping on the visualization and button */
+      $(".output, .output *, .ip-button").on("drop", function(e) {
         e.stopPropagation();
         e.preventDefault();
         return false;
       });
 
-      $(".output, .output *").on("dragover", function(e) {
+      $(".output, .output *, .ip-button").on("dragover", function(e) {
         e.stopPropagation();
         e.preventDefault();
         return false;

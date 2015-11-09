@@ -71,6 +71,16 @@ body {
   stroke: none;
 }
 
+.ip-label {
+  display: none;
+}
+
+.ip-button {
+  z-index: 2000;
+  position: relative;
+  margin: 0 0 .5em calc(50% + 300px);
+}
+
 /*
  * (C)Leanest CSS spinner ever
  * http://lea.verou.me/2013/11/cleanest-css-spinner-ever/
