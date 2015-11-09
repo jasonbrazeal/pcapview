@@ -102,7 +102,7 @@ $(document).ready(function() {
     $('<div class="output"></div>').insertAfter(".container");
 
     /* initialize visualization's margins, scales, and axes */
-    var margin = {top: 80, right: 150, bottom: 100, left: 80};
+    var margin = {top: 80, right: 150, bottom: 100, left: 90};
     var width = 900 - margin.left - margin.right;
     // height of visualization is based on number of conversations
     var height = 165 + 15 * Object.getOwnPropertyNames(convDict).length - margin.top - margin.bottom;
@@ -243,6 +243,7 @@ $(document).ready(function() {
           .attr("height", 12)
           .style("fill", "transparent")
           .style("stroke", "transparent")
+          .attr("class", "hover-area")
           .on("mouseover", showTips)
           .on("mouseout", hideTips);
 
@@ -301,10 +302,22 @@ $(document).ready(function() {
 
       legendGroup.attr("transform", "translate(100, -50)")
 
-      /* draw button to toggle ip addresses */
+      /* create button to toggle ip addresses */
       $('<button type="button" class="btn btn-default ip-button" data-toggle="button">Show IPs</button>').insertAfter(".container");
       $(".ip-button").on("click", function() {
-              // $(this).toggleClass("active");
+              if ($(this).text() === "Show IPs") {
+                $(this).text("Hide IPs");
+                  d3.selectAll(".hover-area")
+                    .on("mouseover", function() { return false; })
+                    .on("mouseout", function() { return false; });
+              } else if ($(this).text() === "Hide IPs") {
+                $(this).text("Show IPs");
+                  d3.selectAll(".hover-area")
+                    .on("mouseover", showTips)
+                    .on("mouseout", hideTips);
+              } else {
+                $(this).text("Show/Hide IPs");
+              }
               $(".ip-label").toggle();
             });
 
