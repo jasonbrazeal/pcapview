@@ -7,11 +7,18 @@
 ## Requirements
 
 * Python 3 on Linux
-  * tested with Python 3.4.3 on Ubuntu 14.04.3
-* Python Packages: flask (0.10.1) and its dependencies
+  * tested with Python 3.5.2 on CentOS 7.3.1611
+* Python Packages: flask (0.12.1) and its dependencies
   * `pip install -r requirements.txt`
+* Linux Packages: tshark 1.10.14 (wireshark package)
 
 ## Run
 
 * To start the application listening on port 5000:
   * `python pcapview.py`
+
+## Screenshots
+
+![screenshot](doc/pcapview1.png?raw=true 'Screenshot 1')
+![screenshot](doc/pcapview2.png?raw=true 'Screenshot 2')
+![screenshot](doc/pcapview3.png?raw=true 'Screenshot 3')

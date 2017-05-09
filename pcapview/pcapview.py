@@ -44,7 +44,8 @@ def ajax():
     for line in tshark_lines:
         p = line.split()
         try:
-            dt = datetime.strptime(p[0] + p[1].rstrip('0'), '%Y-%m-%d%H:%M:%S.%f')
+            # dt = datetime.strptime(p[0] + p[1].rstrip('0'), '%Y-%m-%d%H:%M:%S.%f')
+            dt = datetime.strptime(p[0] + p[1], '%Y-%m-%d%H:%M:%S')
         except ValueError:
             abort(500)
         del p[:2]
@@ -98,4 +99,4 @@ def get_conversation(p, conversations):
     return None
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=False)
+    app.run(host='0.0.0.0', port=5000, debug=True)
