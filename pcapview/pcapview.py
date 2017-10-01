@@ -20,7 +20,6 @@ app.config['UPLOAD_FOLDER'] = '.'
 def index():
     '''Home page view.
     '''
-    print('index func start')
     return render_template('index.html')
 
 @app.route('/ajax', methods=['POST'])
@@ -28,7 +27,6 @@ def ajax():
     '''Handler for ajax call that accepts a pcap file upload and returns JSON data
        with all conversations and packets in pcap file.
     '''
-    print('ajax func start')
     # handle file upload
     file = request.files['file']
     if file:
@@ -36,9 +34,7 @@ def ajax():
         pcap_file = str(int(time.time())) + secure_filename(file.filename)
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], pcap_file))
     else:
-        print('no file!')
         abort(500)
-    print('processing file with tshark')
     # process file with tshark command and parse output into a list of packets
     tshark_output = subprocess.getoutput('tshark -o gui.column.format:"AbsTime","%Yt","Source IP Address","%us","Source Port","%uS","Destination IP Address","%ud","Destination Port","%uD" -r {}'.format(pcap_file))
     tshark_lines = [l.strip() for l in tshark_output.split('\n')]
@@ -46,16 +42,13 @@ def ajax():
     packets = []
     # import pdb; pdb.set_trace()
     for line in tshark_lines:
-        print(line)
         p = line.split()
         try:
             dt = datetime.strptime(p[0] + p[1], '%Y-%m-%d%H:%M:%S')
         except (ValueError) as e:
-            print(f'!!!!!!!!!--1--{e}')
             try:
                 dt = datetime.strptime(p[0] + p[1], '%Y-%m-%d%H:%M:%S.%f')
             except (ValueError, IndexError) as e:
-                print(f'!!!!!!!!!--2--{e}')
                 try:
                     seconds, microseconds = p[1].split('.')
                     if len(microseconds) > 6: # more precise than %f can handle, so round up
@@ -63,10 +56,8 @@ def ajax():
                         p[1] = f'{seconds}.{new_microseconds}'
                         dt = datetime.strptime(p[0] + p[1], '%Y-%m-%d%H:%M:%S.%f')
                     else:
-                        print(f'!!!!!!!!!--3--unable to process pcap date format')
                         continue
                 except Exception as e:
-                    print(e)
                     continue
         del p[:2]
         p.append(dt)
