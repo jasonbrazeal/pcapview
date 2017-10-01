@@ -7,10 +7,14 @@
 ## Requirements
 
 * Python 3 on Linux
-  * tested with Python 3.5.2 on CentOS 7.3.1611
-* Python Packages: flask (0.12.1) and its dependencies
+  * tested with Python 3.6.2 on Ubuntu 16.04.3 LTS
+* Python Packages: Flask (0.12.1) and its dependencies
   * `pip install -r requirements.txt`
-* Linux Packages: tshark 1.10.14 (wireshark package)
+* Linux Packages: TShark (Wireshark) 2.2.6
+  * `apt-get install tshark`
+* PCAPs
+  * example pcaps provided in the test folder
+  * to create your own, use tshark: `tshark -w out.pcap`
 
 ## Run
 
