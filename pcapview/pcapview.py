@@ -35,19 +35,30 @@ def ajax():
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], pcap_file))
     else:
         abort(500)
-
     # process file with tshark command and parse output into a list of packets
-    tshark_output = subprocess.getoutput('tshark -o column.format:"AbsTime","%Yt","Source IP Address","%us","Source Port","%uS","Destination IP Address","%ud","Destination Port","%uD" -r {}'.format(pcap_file))
+    tshark_output = subprocess.getoutput('tshark -o gui.column.format:"AbsTime","%Yt","Source IP Address","%us","Source Port","%uS","Destination IP Address","%ud","Destination Port","%uD" -r {}'.format(pcap_file))
     tshark_lines = [l.strip() for l in tshark_output.split('\n')]
     Packet.protocols = {}
     packets = []
+    # import pdb; pdb.set_trace()
     for line in tshark_lines:
         p = line.split()
         try:
-            # dt = datetime.strptime(p[0] + p[1].rstrip('0'), '%Y-%m-%d%H:%M:%S.%f')
             dt = datetime.strptime(p[0] + p[1], '%Y-%m-%d%H:%M:%S')
-        except ValueError:
-            abort(500)
+        except (ValueError) as e:
+            try:
+                dt = datetime.strptime(p[0] + p[1], '%Y-%m-%d%H:%M:%S.%f')
+            except (ValueError, IndexError) as e:
+                try:
+                    seconds, microseconds = p[1].split('.')
+                    if len(microseconds) > 6: # more precise than %f can handle, so round up
+                        new_microseconds = microseconds[:6]
+                        p[1] = f'{seconds}.{new_microseconds}'
+                        dt = datetime.strptime(p[0] + p[1], '%Y-%m-%d%H:%M:%S.%f')
+                    else:
+                        continue
+                except Exception as e:
+                    continue
         del p[:2]
         p.append(dt)
         # if we get a packet line with an odd amount of data, ignore it
