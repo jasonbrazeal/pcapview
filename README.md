@@ -15,7 +15,7 @@
 * PCAPs
   * example pcaps provided in the test folder
   * to create your own, use tshark: `tshark -w out.pcap`
-  * download from the web, but be careful. example pcaps come from [here](http://www.malware-traffic-analysis.net/)
+  * download from the web, but be careful; example pcaps are from [here](http://www.malware-traffic-analysis.net/)
 
 ## Run
 
