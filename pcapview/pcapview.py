@@ -9,7 +9,7 @@ import json
 from socket import getservbyport
 
 from flask import Flask, render_template, request, abort
-from werkzeug import secure_filename
+from werkzeug.utils import secure_filename
 
 from models import Conversation, Packet
 

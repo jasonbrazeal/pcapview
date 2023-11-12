@@ -23,7 +23,7 @@ protoColors = {"tcpmux": null,
                "whois": null,
                "tacacs": null,
                "re-mail-ck": null,
-               "domain": "#2ca02c",
+               "domain": "#ff7f0e",
                "mtp": null,
                "tacacs-ds": null,
                "bootps": null,
@@ -86,7 +86,7 @@ protoColors = {"tcpmux": null,
                "ldap": null,
                "imsp": null,
                "svrloc": null,
-               "https": "#ff7f0e",
+               "https": "#2ca02c",
                "snpp": null,
                "microsoft-ds": null,
                "kpasswd": null,
@@ -346,3 +346,18 @@ for (var c in protoColors) {
     protoColors[c] = d3.scale.category20().domain(d3.range(20))(Math.floor(Math.random() * 20)).toString()
   }
 }
+
+
+const handler = {
+  get(target, prop) {
+    if (target[prop]) {
+      return target[prop]
+    }
+    let color = d3.scale.category20().domain(d3.range(20))(Math.floor(Math.random() * 20)).toString();
+    target[prop] = color;
+    return color;
+  },
+};
+const proxy = new Proxy(protoColors, handler);
+protoColors = proxy;
+
